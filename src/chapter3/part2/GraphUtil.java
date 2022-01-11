@@ -42,6 +42,7 @@ public class GraphUtil {
         }
     }
 
+    //使用邻接表存储图
     private static class Graph {
         int size;
         //顶点
@@ -51,7 +52,7 @@ public class GraphUtil {
 
         Graph(int size) {
             this.size = size;
-            //初始化顶点和邻接矩阵
+            //初始化顶点和邻接链表
             vertexes = new Vertex[size];
             adj = new LinkedList[size];
             for (int i = 0; i < size; i++) {
