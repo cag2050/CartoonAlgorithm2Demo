@@ -52,6 +52,69 @@ public class Dijkstra {
         return distances;
     }
 
+    private static int[] dijkstraV2(Graph graph, int startIndex) {
+        //图的顶点数量
+        int size = graph.vertices.length;
+        //创建距离表，存储从起点到每一个顶点的临时距离
+        int[] distances = new int[size];
+
+        //创建前置定点表，存储从起点到每一个顶点的已知最短路径的前置节点
+        int[] prevs = new int[size];
+
+        //记录顶点遍历状态
+        boolean[] access = new boolean[size];
+        //初始化最短路径表，到达每个顶点的路径代价默认为无穷大
+        for (int i = 1; i < size; i++) {
+            distances[i] = Integer.MAX_VALUE;
+        }
+        //遍历起点，刷新距离表
+        access[0] = true;
+        List<Edge> edgesFromStart = graph.adj[startIndex];
+        for (Edge edge : edgesFromStart) {
+            distances[edge.index] = edge.weight;
+
+            prevs[edge.index] = 0;
+        }
+        //主循环，重复遍历最短距离顶点和刷新距离表的操作
+        for (int i = 1; i < size; i++) {
+            //寻找最短距离顶点
+            int minDistanceFromStart = Integer.MAX_VALUE;
+            int minDistanceIndex = -1;
+            for (int j = 1; j < size; j++) {
+                if (!access[j] && (distances[j] < minDistanceFromStart)) {
+                    minDistanceFromStart = distances[j];
+                    minDistanceIndex = j;
+                }
+            }
+            if (minDistanceIndex == -1) {
+                break;
+            }
+            //遍历顶点，刷新距离表
+            access[minDistanceIndex] = true;
+            for (Edge edge : graph.adj[minDistanceIndex]) {
+                if (access[edge.index]) {
+                    continue;
+                }
+                int weight = edge.weight;
+                int preDistance = distances[edge.index];
+                if (weight != Integer.MAX_VALUE && minDistanceFromStart + weight < preDistance) {
+                    distances[edge.index] = minDistanceFromStart + weight;
+
+                    prevs[edge.index] = minDistanceIndex;
+                }
+            }
+        }
+
+        return prevs;
+    }
+
+    private static void printPrevs(Vertex[] vertices, int[] prev, int i) {
+        if (i > 0) {
+            printPrevs(vertices, prev, prev[i]);
+        }
+        System.out.println(vertices[i].data);
+    }
+
     private static void initGraph(Graph graph) {
         graph.vertices[0] = new Vertex("A");
         graph.vertices[1] = new Vertex("B");
@@ -122,5 +185,8 @@ public class Dijkstra {
         initGraph(graph);
         int[] distances = dijkstra(graph, 0);
         System.out.println(distances[6]);
+        System.out.println("输出完整路径：");
+        int[] prevs = dijkstraV2(graph, 0);
+        printPrevs(graph.vertices, prevs, graph.vertices.length - 1);
     }
 }
